@@ -35,7 +35,32 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <footer><div class="footer-inner"><div><div class="footer-logo">WAZI</div><div>Wear Your Story.</div><div style="margin-top:10px">📞 <a href="tel:0610753608">0610753608</a></div><div style="margin-top:6px">💬 <a href="https://wa.me/212610753608?text=Hello%20WAZI%2C%20I%27m%20interested%20in%20an%20item." target="_blank" rel="noopener">WhatsApp us</a></div><div>📍 Marrakech & Ifrane, Morocco</div></div><div>© 2026 WAZI. Built for a more circular wardrobe.</div></div></footer>
 <div class="toast" id="toast"></div>
 <div class="modal" id="ratingModal" onclick="if(event.target===this)closeRating()"><div class="modal-card"><div class="modal-head"><h2>Rate your WAZI experience</h2><button class="close" onclick="closeRating()">×</button></div><p class="muted">Your feedback helps buyers and sellers understand the experience.</p><div id="stars" style="display:flex;gap:8px;font-size:2.2rem;margin:18px 0"><button class="icon-btn" onclick="setRating(1)">★</button><button class="icon-btn" onclick="setRating(2)">★</button><button class="icon-btn" onclick="setRating(3)">★</button><button class="icon-btn" onclick="setRating(4)">★</button><button class="icon-btn" onclick="setRating(5)">★</button></div><textarea id="ratingText" placeholder="Tell us about your experience..."></textarea><button class="btn primary" style="width:100%;margin-top:12px" onclick="submitRating()">Submit rating</button></div></div>
-<div class="modal" id="cartModal" onclick="if(event.target===this)closeCart()"><div class="modal-card"><div class="modal-head"><h2>Your Cart</h2><button class="close" onclick="closeCart()">×</button></div><div id="cartItems"></div><div id="cartTotal" style="font-weight:900;text-align:right;margin:18px 0"></div><button class="btn primary" style="width:100%" onclick="checkout()">Pay online</button></div></div>
+<div class="modal" id="cartModal" onclick="if(event.target===this)closeCart()"><div class="modal-card"><div class="modal-head"><h2>Your Cart</h2><button class="close" onclick="closeCart()">×</button></div><div id="cartItems"></div><div id="cartTotal" style="font-weight:900;text-align:right;margin:18px 0"></div><button class="btn primary" style="width:100%" onclick="checkout()">Checkout & Pay Online</button></div></div>
+<div class="modal" id="checkoutModal" onclick="if(event.target===this)closeCheckout()"><div class="modal-card">
+<div class="modal-head"><h2>Checkout</h2><button class="close" onclick="closeCheckout()">×</button></div>
+<div id="checkoutStep1">
+<p class="muted">Enter your delivery information. Your seller's price and delivery fee will be confirmed before payment.</p>
+<div class="form">
+<input id="buyerName" placeholder="Full name" required>
+<input id="buyerPhone" placeholder="Phone number" type="tel" required>
+<input id="buyerAddress" placeholder="Delivery address" required>
+<select id="buyerCity"><option>Marrakech</option><option>Ifrane</option><option>Other city</option></select>
+<select id="buyerDelivery"><option value="0">Delivery — Free</option><option value="20">Delivery — 20 MAD</option><option value="30">Delivery — 30 MAD</option><option value="40">Delivery — 40 MAD</option><option value="custom">Delivery — Seller confirms</option></select>
+<button class="btn primary" type="button" onclick="showPayment()">Continue to payment</button>
+</div></div>
+<div id="checkoutStep2" style="display:none">
+<p class="muted">Secure online payment</p>
+<div style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0">
+<b>💳 Pay by bank card</b><br><small class="muted">Visa / Mastercard / Moroccan cards</small>
+</div>
+<div style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0">
+<b>🔒 Secure checkout</b><br><small class="muted">Card details should be entered only on the payment provider's secure page.</small>
+</div>
+<button class="btn primary" style="width:100%" type="button" onclick="startRealPayment()">Pay securely online</button>
+<button class="btn secondary" style="width:100%;margin-top:10px" type="button" onclick="backToDetails()">Back</button>
+</div>
+<div id="paymentNotice" class="muted" style="margin-top:15px"></div>
+</div></div>
 <script>
 const products=[
 {id:1,name:"Vintage Denim Jacket",cat:"Men",emoji:"🧥",tag:"Vintage"},
@@ -57,7 +82,11 @@ function updateCart(){document.getElementById('cartCount').textContent=cart.leng
 function openCart(){document.getElementById('cartModal').classList.add('open');let box=document.getElementById('cartItems');box.innerHTML=cart.length?cart.map((p,i)=>`<div class="cart-item"><span>${p.emoji} ${p.name}<br><small>Seller's price · Delivery confirmed with seller</small></span><button class="icon-btn" onclick="removeCart(${i})">Remove</button></div>`).join(''):'<div class="empty">Your cart is empty.</div>';document.getElementById('cartTotal').textContent=cart.length?'Final amount: Seller\'s price + delivery':'Payment amount will be confirmed with the seller.'}
 function removeCart(i){cart.splice(i,1);saveState();updateCart();openCart()}
 function closeCart(){document.getElementById('cartModal').classList.remove('open')}
-function checkout(){if(!cart.length)return toast("Your cart is empty");toast("Payment amount must be confirmed before secure payment.")}
+function checkout(){if(!cart.length)return toast("Your cart is empty");document.getElementById("checkoutModal").classList.add("open");document.getElementById("checkoutStep1").style.display="block";document.getElementById("checkoutStep2").style.display="none";document.getElementById("paymentNotice").textContent=""}
+function closeCheckout(){document.getElementById("checkoutModal").classList.remove("open")}
+function showPayment(){const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim();if(!n||!p||!a)return toast("Please complete your delivery details");document.getElementById("checkoutStep1").style.display="none";document.getElementById("checkoutStep2").style.display="block"}
+function backToDetails(){document.getElementById("checkoutStep2").style.display="none";document.getElementById("checkoutStep1").style.display="block"}
+function startRealPayment(){document.getElementById("paymentNotice").textContent="Secure payment gateway connection is required to charge cards. This checkout is ready for the gateway integration."}
 let selectedRating=0;function openRating(){document.getElementById("ratingModal").classList.add("open")}function closeRating(){document.getElementById("ratingModal").classList.remove("open")}function setRating(n){selectedRating=n;document.querySelectorAll("#stars button").forEach((b,i)=>b.style.color=i<n?"var(--gold)":"#fff")}function submitRating(){if(!selectedRating)return toast("Choose a rating first");localStorage.setItem("waziRating",JSON.stringify({stars:selectedRating,text:document.getElementById("ratingText").value}));closeRating();toast("Thank you for your rating!")}
 function submitListing(e){e.preventDefault();let city=document.getElementById('itemCity').value;toast("Listing created for "+city+"! Contact: 0610753608");e.target.reset();document.getElementById('photoPreview').style.display='none'}
 renderProducts();updateCart();
