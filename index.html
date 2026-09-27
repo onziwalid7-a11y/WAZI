@@ -123,7 +123,10 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
     <form class="form" onsubmit="submitListing(event)">
       <input id="itemName" required placeholder="Item name">
       <select id="itemCategory"><option>Men</option><option>Women</option><option>Shoes</option></select>
-      <input id="itemPrice" placeholder="Your selling price (MAD)" type="number" min="1">
+      <select id="itemCity"><option>Marrakech</option><option>Ifrane</option><option>Other city</option></select>
+      <input id="itemPrice" placeholder="Your selling price (MAD) — optional" type="number" min="1">
+      <input id="itemPhoto" type="file" accept="image/*" onchange="previewPhoto(event)">
+      <img id="photoPreview" alt="Preview" style="display:none;width:100%;max-height:220px;object-fit:cover;border-radius:12px;border:1px solid #333">
       <textarea id="itemDescription" placeholder="Describe the condition and story..."></textarea>
       <button class="btn primary" type="submit">Create listing</button>
     </form>
@@ -136,7 +139,7 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 </section>
 </main>
 
-<footer><div class="footer-inner"><div><div class="footer-logo">WAZI</div><div>Wear Your Story.</div><div style="margin-top:10px">📞 <a href="tel:0610753608">0610753608</a></div><div>📍 Marrakech & Ifrane, Morocco</div></div><div>© 2026 WAZI. Built for a more circular wardrobe.</div></div></footer>
+<footer><div class="footer-inner"><div><div class="footer-logo">WAZI</div><div>Wear Your Story.</div><div style="margin-top:10px">📞 <a href="tel:0610753608">0610753608</a></div><div style="margin-top:6px">💬 <a href="https://wa.me/212610753608?text=Hello%20WAZI%2C%20I%27m%20interested%20in%20an%20item." target="_blank" rel="noopener">WhatsApp us</a></div><div>📍 Marrakech & Ifrane, Morocco</div></div><div>© 2026 WAZI. Built for a more circular wardrobe.</div></div></footer>
 
 <div class="toast" id="toast"></div>
 <div class="modal" id="cartModal" onclick="if(event.target===this)closeCart()">
@@ -159,22 +162,24 @@ const products=[
  {id:7,name:"Vintage Knit",cat:"Women",price:240,emoji:"🧶",tag:"Vintage"},
  {id:8,name:"Classic Bomber",cat:"Men",price:350,emoji:"🧥",tag:"Popular"}
 ];
-let cart=[];
+let cart=JSON.parse(localStorage.getItem('waziCart')||'[]'); let favorites=JSON.parse(localStorage.getItem('waziFavorites')||'[]'); function saveState(){localStorage.setItem('waziCart',JSON.stringify(cart));localStorage.setItem('waziFavorites',JSON.stringify(favorites));}
 function renderProducts(){
  let q=document.getElementById('search').value.toLowerCase(),cat=document.getElementById('category').value,sort=document.getElementById('sort').value;
  let arr=products.filter(p=>(cat==="All"||p.cat===cat)&&p.name.toLowerCase().includes(q));
  if(sort==="low")arr.sort((a,b)=>a.price-b.price);if(sort==="high")arr.sort((a,b)=>b.price-a.price);
- document.getElementById('products').innerHTML=arr.map(p=>`<article class="product"><div class="product-img"><span class="badge">${p.tag}</span>${p.emoji}</div><div class="product-body"><h3>${p.name}</h3><div class="meta">${p.cat} · Pre-loved</div><div class="price-row"><span class="price">Seller's price</span><button class="add" onclick="addCart(${p.id})">Add +</button></div></div></article>`).join('')||'<div class="empty" style="grid-column:1/-1">No pieces found. Try another search.</div>';
+ document.getElementById('products').innerHTML=arr.map(p=>`<article class="product"><div class="product-img"><span class="badge">${p.tag}</span>${p.emoji}</div><div class="product-body"><h3>${p.name}</h3><div class="meta">${p.cat} · Pre-loved</div><div class="price-row"><span class="price">Seller's price</span><span><button class="icon-btn" onclick="toggleFavorite(${p.id})">${favorites.includes(p.id)?'♥':'♡'}</button> <button class="add" onclick="addCart(${p.id})">Buy / Contact</button></span></div></div></article>`).join('')||'<div class="empty" style="grid-column:1/-1">No pieces found. Try another search.</div>';
 }
 function filterCat(cat){document.getElementById('category').value=cat;document.getElementById('shop').scrollIntoView({behavior:'smooth'});renderProducts()}
-function addCart(id){let p=products.find(x=>x.id===id);cart.push(p);updateCart();toast(p.name+" added to your cart");}
+function addCart(id){let p=products.find(x=>x.id===id);cart.push(p);saveState();updateCart();toast(p.name+" added to your cart");}
+function toggleFavorite(id){favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];saveState();renderProducts();toast(favorites.includes(id)?"Added to favorites":"Removed from favorites")}
+function previewPhoto(e){const file=e.target.files[0],img=document.getElementById('photoPreview');if(file){img.src=URL.createObjectURL(file);img.style.display='block'}else img.style.display='none'}
 function updateCart(){document.getElementById('cartCount').textContent=cart.length}
 function openCart(){document.getElementById('cartModal').classList.add('open');let box=document.getElementById('cartItems');box.innerHTML=cart.length?cart.map((p,i)=>`<div class="cart-item"><span>${p.emoji} ${p.name}<br><small>Seller's price</small></span><button class="icon-btn" onclick="removeCart(${i})">Remove</button></div>`).join(''):'<div class="empty">Your cart is empty.</div>';document.getElementById('cartTotal').textContent=cart.length?'Total: '+cart.reduce((s,p)=>s+p.price,0)+' MAD':''}
-function removeCart(i){cart.splice(i,1);updateCart();openCart()}
+function removeCart(i){cart.splice(i,1);saveState();updateCart();openCart()}
 function closeCart(){document.getElementById('cartModal').classList.remove('open')}
-function checkout(){if(!cart.length)return toast("Your cart is empty");toast("Checkout is ready for the next step.");}
+function checkout(){if(!cart.length)return toast("Your cart is empty");let msg=encodeURIComponent("Hello WAZI, I want to buy: "+cart.map(p=>p.name).join(", "));window.open("https://wa.me/212610753608?text="+msg,"_blank")}
 function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-function submitListing(e){e.preventDefault();toast("Your listing has been created!");e.target.reset()}
+function submitListing(e){e.preventDefault();let city=document.getElementById('itemCity').value;toast("Listing created for "+city+"! Contact: 0610753608");e.target.reset();document.getElementById('photoPreview').style.display='none'}
 renderProducts();updateCart();
 </script>
 </body>
