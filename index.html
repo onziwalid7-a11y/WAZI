@@ -62,6 +62,8 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <div id="paymentNotice" class="muted" style="margin-top:15px"></div>
 </div></div>
 <script>
+<!-- WAZI payment integration: keep the endpoint on a secure server/serverless function. Never put CMI merchant secrets in this file. -->
+
 const products=[
 {id:1,name:"Vintage Denim Jacket",cat:"Men",emoji:"🧥",tag:"Vintage"},
 {id:2,name:"Classic White Shirt",cat:"Women",emoji:"👚",tag:"Like new"},
@@ -86,7 +88,7 @@ function checkout(){if(!cart.length)return toast("Your cart is empty");document.
 function closeCheckout(){document.getElementById("checkoutModal").classList.remove("open")}
 function showPayment(){const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim();if(!n||!p||!a)return toast("Please complete your delivery details");document.getElementById("checkoutStep1").style.display="none";document.getElementById("checkoutStep2").style.display="block"}
 function backToDetails(){document.getElementById("checkoutStep2").style.display="none";document.getElementById("checkoutStep1").style.display="block"}
-function startRealPayment(){document.getElementById("paymentNotice").textContent="Secure payment gateway connection is required to charge cards. This checkout is ready for the gateway integration."}
+async function startRealPayment(){const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim();if(!n||!p||!a)return toast("Please complete your delivery details");const notice=document.getElementById("paymentNotice");notice.textContent="Connecting to secure CMI payment…";try{const endpoint=window.WAZI_PAYMENT_ENDPOINT||"/api/create-payment";const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer:{name:n,phone:p,address:a,city:document.getElementById("buyerCity")?.value||""},delivery:document.getElementById("deliveryOption")?.value||"",items:cart.map(x=>({id:x.id,name:x.name}))})});if(!res.ok)throw new Error("Payment service unavailable");const data=await res.json();if(data.redirectUrl){window.location.href=data.redirectUrl;return}if(data.paymentUrl){window.location.href=data.paymentUrl;return}throw new Error("No secure payment URL returned")}catch(e){notice.textContent="CMI is not connected yet. Your WAZI checkout is ready, but the secure payment server and CMI merchant credentials must be configured before cards can be charged."}}
 let selectedRating=0;function openRating(){document.getElementById("ratingModal").classList.add("open")}function closeRating(){document.getElementById("ratingModal").classList.remove("open")}function setRating(n){selectedRating=n;document.querySelectorAll("#stars button").forEach((b,i)=>b.style.color=i<n?"var(--gold)":"#fff")}function submitRating(){if(!selectedRating)return toast("Choose a rating first");localStorage.setItem("waziRating",JSON.stringify({stars:selectedRating,text:document.getElementById("ratingText").value}));closeRating();toast("Thank you for your rating!")}
 function submitListing(e){e.preventDefault();let city=document.getElementById('itemCity').value;toast("Listing created for "+city+"! Contact: 0610753608");e.target.reset();document.getElementById('photoPreview').style.display='none'}
 renderProducts();updateCart();
