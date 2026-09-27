@@ -76,7 +76,7 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <header>
   <div class="nav">
     <a class="logo" href="#">WAZI</a><span class="tag">WEAR YOUR STORY</span>
-    <nav><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#sell">Sell</a><a href="#about">About</a></nav>
+    <nav><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#community">Buyer & Seller</a><a href="#sell">Sell</a><a href="#about">About</a></nav>
     <button class="cart-btn" onclick="openCart()">Cart <span id="cartCount">0</span></button>
   </div>
 </header>
@@ -107,12 +107,12 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
   <div class="toolbar">
     <input class="search" id="search" placeholder="Search jackets, sneakers, vintage..." oninput="renderProducts()">
     <select id="category" onchange="renderProducts()"><option>All</option><option>Men</option><option>Women</option><option>Shoes</option></select>
-    <select id="sort" onchange="renderProducts()"><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select>
+    <select id="sort" onchange="renderProducts()"><option value="featured">Featured</option><option value="new">Newest</option></select>
   </div>
   <div class="products" id="products"></div>
 </section>
 
-<section class="section" id="sell">
+<section class="section" id="community"><div class="section-head"><div><div class="eyebrow">Easy mode</div><h2>Choose your WAZI space</h2></div><span class="muted">Simple tools for buyers and sellers.</span></div><div class="categories"><div class="cat"><b>🛍️ Buyer Space</b><small>Search items, save favorites, add to cart, and contact sellers on WhatsApp.</small><button class="btn primary" style="margin-top:14px;width:100%" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Enter Buyer Space</button></div><div class="cat"><b>🏷️ Seller Space</b><small>Create a listing, choose your city, add a photo, set your own price, and receive buyer messages.</small><button class="btn primary" style="margin-top:14px;width:100%" onclick="document.getElementById('sell').scrollIntoView({behavior:'smooth'})">Enter Seller Space</button></div><div class="cat"><b>⭐ Ratings</b><small>Buyers can rate their experience after a purchase, from 1 to 5 stars.</small><button class="btn secondary" style="margin-top:14px;width:100%" onclick="openRating()">Rate WAZI</button></div><div class="cat"><b>🤝 Safe exchange</b><small>Keep conversations clear and agree on meeting or delivery details before completing a sale.</small><a class="btn secondary" style="margin-top:14px;width:100%" href="tel:0610753608">Contact WAZI</a></div></div></section><section class="section" id="sell">
   <div class="sell">
     <div>
       <div class="eyebrow">Give it a second life</div>
@@ -142,7 +142,7 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <footer><div class="footer-inner"><div><div class="footer-logo">WAZI</div><div>Wear Your Story.</div><div style="margin-top:10px">📞 <a href="tel:0610753608">0610753608</a></div><div style="margin-top:6px">💬 <a href="https://wa.me/212610753608?text=Hello%20WAZI%2C%20I%27m%20interested%20in%20an%20item." target="_blank" rel="noopener">WhatsApp us</a></div><div>📍 Marrakech & Ifrane, Morocco</div></div><div>© 2026 WAZI. Built for a more circular wardrobe.</div></div></footer>
 
 <div class="toast" id="toast"></div>
-<div class="modal" id="cartModal" onclick="if(event.target===this)closeCart()">
+<div class="modal" id="ratingModal" onclick="if(event.target===this)closeRating()"><div class="modal-card"><div class="modal-head"><h2>Rate your WAZI experience</h2><button class="close" onclick="closeRating()">×</button></div><p class="muted">Your feedback helps buyers and sellers understand the experience.</p><div id="stars" style="display:flex;gap:8px;font-size:2.2rem;margin:18px 0"><button class="icon-btn" onclick="setRating(1)">★</button><button class="icon-btn" onclick="setRating(2)">★</button><button class="icon-btn" onclick="setRating(3)">★</button><button class="icon-btn" onclick="setRating(4)">★</button><button class="icon-btn" onclick="setRating(5)">★</button></div><textarea id="ratingText" placeholder="Tell us about your experience..."></textarea><button class="btn primary" style="width:100%;margin-top:12px" onclick="submitRating()">Submit rating</button></div></div><div class="modal" id="cartModal" onclick="if(event.target===this)closeCart()">
   <div class="modal-card">
     <div class="modal-head"><h2>Your Cart</h2><button class="close" onclick="closeCart()">×</button></div>
     <div id="cartItems"></div>
@@ -166,8 +166,8 @@ let cart=JSON.parse(localStorage.getItem('waziCart')||'[]'); let favorites=JSON.
 function renderProducts(){
  let q=document.getElementById('search').value.toLowerCase(),cat=document.getElementById('category').value,sort=document.getElementById('sort').value;
  let arr=products.filter(p=>(cat==="All"||p.cat===cat)&&p.name.toLowerCase().includes(q));
- if(sort==="low")arr.sort((a,b)=>a.price-b.price);if(sort==="high")arr.sort((a,b)=>b.price-a.price);
- document.getElementById('products').innerHTML=arr.map(p=>`<article class="product"><div class="product-img"><span class="badge">${p.tag}</span>${p.emoji}</div><div class="product-body"><h3>${p.name}</h3><div class="meta">${p.cat} · Pre-loved</div><div class="price-row"><span class="price">Seller's price</span><span><button class="icon-btn" onclick="toggleFavorite(${p.id})">${favorites.includes(p.id)?'♥':'♡'}</button> <button class="add" onclick="addCart(${p.id})">Buy / Contact</button></span></div></div></article>`).join('')||'<div class="empty" style="grid-column:1/-1">No pieces found. Try another search.</div>';
+ if(sort==="new")arr=arr.reverse();
+ document.getElementById('products').innerHTML=arr.map(p=>`<article class="product"><div class="product-img"><span class="badge">${p.tag}</span>${p.emoji}</div><div class="product-body"><h3>${p.name}</h3><div class="meta">${p.cat} · Pre-loved</div><div style="margin-top:7px;color:var(--gold);font-size:.9rem">★★★★★ <span class="muted">4.8/5</span></div><div class="price-row"><span class="price">Seller's price</span><span><button class="icon-btn" onclick="toggleFavorite(${p.id})">${favorites.includes(p.id)?'♥':'♡'}</button> <button class="add" onclick="addCart(${p.id})">Buy / Contact</button></span></div></div></article>`).join('')||'<div class="empty" style="grid-column:1/-1">No pieces found. Try another search.</div>';
 }
 function filterCat(cat){document.getElementById('category').value=cat;document.getElementById('shop').scrollIntoView({behavior:'smooth'});renderProducts()}
 function addCart(id){let p=products.find(x=>x.id===id);cart.push(p);saveState();updateCart();toast(p.name+" added to your cart");}
@@ -178,7 +178,7 @@ function openCart(){document.getElementById('cartModal').classList.add('open');l
 function removeCart(i){cart.splice(i,1);saveState();updateCart();openCart()}
 function closeCart(){document.getElementById('cartModal').classList.remove('open')}
 function checkout(){if(!cart.length)return toast("Your cart is empty");let msg=encodeURIComponent("Hello WAZI, I want to buy: "+cart.map(p=>p.name).join(", "));window.open("https://wa.me/212610753608?text="+msg,"_blank")}
-function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+let selectedRating=0;function openRating(){document.getElementById("ratingModal").classList.add("open")}function closeRating(){document.getElementById("ratingModal").classList.remove("open")}function setRating(n){selectedRating=n;document.querySelectorAll("#stars button").forEach((b,i)=>b.style.color=i<n?"var(--gold)":"#fff")}function submitRating(){if(!selectedRating)return toast("Choose a rating first");localStorage.setItem("waziRating",JSON.stringify({stars:selectedRating,text:document.getElementById("ratingText").value}));closeRating();toast("Thank you for your rating!")}function toast(msg){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 function submitListing(e){e.preventDefault();let city=document.getElementById('itemCity').value;toast("Listing created for "+city+"! Contact: 0610753608");e.target.reset();document.getElementById('photoPreview').style.display='none'}
 renderProducts();updateCart();
 </script>
