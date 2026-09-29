@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://onziwalid7-a11y.github.io/WAZI/sitemap.xml
