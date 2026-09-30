@@ -76,7 +76,9 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <script>
 <!-- WAZI payment integration: keep the endpoint on a secure server/serverless function. Never put CMI merchant secrets in this file. -->
 
-const sellerProducts=JSON.parse(localStorage.getItem('waziSellerProducts')||'[]');
+const demoNames=new Set(['Vintage Denim Jacket','Classic White Shirt','Retro Sneakers','Oversized Hoodie','Elegant Black Dress','Canvas Sneakers','Vintage Knit','Classic Bomber']);
+const sellerProducts=JSON.parse(localStorage.getItem('waziSellerProducts')||'[]').filter(p=>!demoNames.has(p.name));
+localStorage.setItem('waziSellerProducts',JSON.stringify(sellerProducts));
 const products=[...sellerProducts];
 let cart=JSON.parse(localStorage.getItem('waziCart')||'[]').filter(p=>!Number.isFinite(Number(p.id))||Number(p.id)>8).map(p=>({id:p.id,name:p.name,cat:p.cat,type:p.type,emoji:p.emoji,tag:p.tag,price:Number(p.price||0),delivery:p.delivery||"0",image:p.image||"",size:p.size||"—",city:p.city||"Morocco",qty:Number(p.qty||1)}));localStorage.setItem('waziCart',JSON.stringify(cart));let favorites=JSON.parse(localStorage.getItem('waziFavorites')||'[]');
 function saveState(){localStorage.setItem('waziCart',JSON.stringify(cart));localStorage.setItem('waziFavorites',JSON.stringify(favorites))}
