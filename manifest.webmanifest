@@ -1,0 +1,14 @@
+{
+  "name":"WAZI — Wear Your Story",
+  "short_name":"WAZI",
+  "description":"WAZI Moroccan second-hand fashion marketplace.",
+  "start_url":"/WAZI/",
+  "scope":"/WAZI/",
+  "display":"standalone",
+  "background_color":"#0b0b0b",
+  "theme_color":"#0b0b0b",
+  "orientation":"portrait-primary",
+  "icons":[
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
