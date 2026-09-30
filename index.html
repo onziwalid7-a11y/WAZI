@@ -7,6 +7,12 @@
 <meta name="author" content="WAZI — Wear Your Story">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://onziwalid7-a11y.github.io/WAZI/">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta property="og:type" content="website"><meta property="og:title" content="WAZI — Wear Your Story | Second-Hand Fashion in Morocco"><meta property="og:description" content="Discover pre-loved fashion for Men, Women and Children. Shop and sell second-hand clothing in Morocco."><meta property="og:url" content="https://onziwalid7-a11y.github.io/WAZI/"><meta property="og:site_name" content="WAZI — Wear Your Story">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="WAZI — Wear Your Story"><meta name="twitter:description" content="Pre-loved fashion marketplace in Morocco for Men, Women and Children.">
 <title>WAZI — Wear Your Story | Second-Hand Fashion Morocco</title>
@@ -74,6 +80,7 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <div id="paymentNotice" class="muted" style="margin-top:15px"></div>
 </div></div>
 <script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 <!-- WAZI payment integration: keep the endpoint on a secure server/serverless function. Never put CMI merchant secrets in this file. -->
 
 const demoNames=new Set(['Vintage Denim Jacket','Classic White Shirt','Retro Sneakers','Oversized Hoodie','Elegant Black Dress','Canvas Sneakers','Vintage Knit','Classic Bomber']);
