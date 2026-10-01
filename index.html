@@ -67,14 +67,19 @@ footer{border-top:1px solid var(--line);padding:45px 24px;color:#aaa}.footer-inn
 <button class="btn primary" type="button" onclick="showPayment()">Continue to payment</button>
 </div></div>
 <div id="checkoutStep2" style="display:none">
-<p class="muted">Secure online payment</p>
-<div style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0">
-<b>💳 Pay by bank card</b><br><small class="muted">Visa / Mastercard / Moroccan cards</small>
+<p class="muted">Choose how you want to pay.</p>
+<div style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0;cursor:pointer" onclick="selectPaymentMethod('card')">
+<label style="display:flex;gap:12px;align-items:flex-start;cursor:pointer"><input id="paymentCard" type="radio" name="paymentMethod" value="card" checked><span><b>💳 Pay by bank card</b><br><small class="muted">Visa / Mastercard / Moroccan cards · Secure online payment</small></span></label>
 </div>
-<div style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0">
+<div style="border:1px solid #6b5420;border-radius:14px;padding:18px;margin:15px 0;background:linear-gradient(135deg,#191711,#101010);cursor:pointer" onclick="selectPaymentMethod('cash')">
+<label style="display:flex;gap:12px;align-items:flex-start;cursor:pointer"><input id="paymentCash" type="radio" name="paymentMethod" value="cash"><span><b>💵 Pay cash on delivery</b><br><small class="muted">No online card? No problem. Pay in cash when your order arrives.</small></span></label>
+</div>
+<div id="cashNote" style="display:none;border-left:3px solid var(--gold);padding:12px 14px;margin:12px 0;color:#ddd;background:#111">Your order will be confirmed with WAZI. Please have the agreed order amount ready when you receive your package.</div>
+<div id="cardSecure" style="border:1px solid #333;border-radius:14px;padding:18px;margin:15px 0">
 <b>🔒 Secure checkout</b><br><small class="muted">Card details should be entered only on the payment provider's secure page.</small>
 </div>
-<button class="btn primary" style="width:100%" type="button" onclick="startRealPayment()">Pay securely online</button>
+<button id="cardPayBtn" class="btn primary" style="width:100%" type="button" onclick="startRealPayment()">Pay securely online</button>
+<button id="cashPayBtn" class="btn primary" style="width:100%;display:none" type="button" onclick="placeCashOrder()">Confirm cash-on-delivery order</button>
 <button class="btn secondary" style="width:100%;margin-top:10px" type="button" onclick="backToDetails()">Back</button>
 </div>
 <div id="paymentNotice" class="muted" style="margin-top:15px"></div>
@@ -119,6 +124,26 @@ function checkout(){if(!cart.length)return toast("Your cart is empty");document.
 function closeCheckout(){document.getElementById("checkoutModal").classList.remove("open")}
 function showPayment(){const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim();if(!n||!p||!a)return toast("Please complete your delivery details");document.getElementById("checkoutStep1").style.display="none";document.getElementById("checkoutStep2").style.display="block"}
 function backToDetails(){document.getElementById("checkoutStep2").style.display="none";document.getElementById("checkoutStep1").style.display="block"}
+function selectPaymentMethod(method){
+  const card=method==="card";
+  document.getElementById("paymentCard").checked=card;
+  document.getElementById("paymentCash").checked=!card;
+  document.getElementById("cashNote").style.display=card?"none":"block";
+  document.getElementById("cardSecure").style.display=card?"block":"none";
+  document.getElementById("cardPayBtn").style.display=card?"block":"none";
+  document.getElementById("cashPayBtn").style.display=card?"none":"block";
+}
+function placeCashOrder(){
+  const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim(),city=document.getElementById("buyerCity").value;
+  if(!n||!p||!a)return toast("Please complete your delivery details");
+  if(!cart.length)return toast("Your cart is empty");
+  const items=cart.map(x=>x.name+" x"+Number(x.qty||1)).join(", ");
+  const delivery=document.getElementById("buyerDelivery").value;
+  const message="Hello WAZI, I want to place a CASH ON DELIVERY order.%0A%0AName: "+encodeURIComponent(n)+"%0APhone: "+encodeURIComponent(p)+"%0AAddress: "+encodeURIComponent(a)+"%0ACity: "+encodeURIComponent(city)+"%0AItems: "+encodeURIComponent(items)+"%0ADelivery: "+encodeURIComponent(delivery)+"%0A%0APlease confirm my order and the final amount.";
+  document.getElementById("paymentNotice").innerHTML="✅ Cash-on-delivery selected. Please confirm your order with WAZI on WhatsApp.";
+  window.open("https://wa.me/212610753608?text="+message,"_blank");
+  toast("Cash-on-delivery request ready");
+}
 async function startRealPayment(){const n=document.getElementById("buyerName").value.trim(),p=document.getElementById("buyerPhone").value.trim(),a=document.getElementById("buyerAddress").value.trim();if(!n||!p||!a)return toast("Please complete your delivery details");const notice=document.getElementById("paymentNotice");notice.textContent="Connecting to secure CMI payment…";try{const endpoint=window.WAZI_PAYMENT_ENDPOINT||"/api/create-payment";const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer:{name:n,phone:p,address:a,city:document.getElementById("buyerCity")?.value||""},delivery:document.getElementById("buyerDelivery")?.value||"",items:cart.map(x=>({id:x.id,name:x.name,price:Number(x.price||0),delivery:x.delivery||"0"})),amount:cart.reduce((sum,x)=>sum+Number(x.price||0),0)})});if(!res.ok)throw new Error("Payment service unavailable");const data=await res.json();if(data.redirectUrl){window.location.href=data.redirectUrl;return}if(data.paymentUrl){window.location.href=data.paymentUrl;return}throw new Error("No secure payment URL returned")}catch(e){notice.textContent="CMI is not connected yet. Your WAZI checkout is ready, but the secure payment server and CMI merchant credentials must be configured before cards can be charged."}}
 let selectedRating=0;function openRating(){document.getElementById("ratingModal").classList.add("open")}function closeRating(){document.getElementById("ratingModal").classList.remove("open")}function setRating(n){selectedRating=n;document.querySelectorAll("#stars button").forEach((b,i)=>b.style.color=i<n?"var(--gold)":"#fff")}function submitRating(){if(!selectedRating)return toast("Choose a rating first");localStorage.setItem("waziRating",JSON.stringify({stars:selectedRating,text:document.getElementById("ratingText").value}));closeRating();toast("Thank you for your rating!")}
 async function submitListing(e){e.preventDefault();const name=document.getElementById('itemName').value.trim(),cat=document.getElementById('itemGroup').value,type=document.getElementById('itemType').value,size=document.getElementById('itemSize').value,condition=document.getElementById('itemCondition').value,city=document.getElementById('itemCity').value,price=Number(document.getElementById('itemPrice').value),delivery=document.getElementById('deliveryPrice').value,desc=document.getElementById('itemDescription').value.trim(),file=document.getElementById('itemPhoto').files[0];if(!name||size==="Size — choose"||!price||price<10)return toast("Please choose a size and add a reasonable price (minimum 10 MAD)");const save=async function(image){const {data,error}=await waziSupabase.from('listings').insert({name,group_name:cat,item_type:type,size,condition,city,price,delivery_price:delivery==="custom"?0:Number(delivery||0),description:desc,image_url:image||null,status:"active"}).select().single();if(error){console.error(error);return toast("Could not create the shared listing yet")};const item={id:data.id,name:data.name,cat:data.group_name,type:data.item_type,size:data.size,condition:data.condition,city:data.city,price:Number(data.price),delivery:data.delivery_price||0,description:data.description||"",image:data.image_url||"",emoji:cat==="Shoes"?"👟":cat==="Women"?"👗":cat==="Children"?"🧒":"🧥",tag:"New listing"};products.unshift(item);e.target.reset();document.getElementById('photoPreview').style.display='none';document.getElementById('photoStatus').style.display='none';renderProducts();toast("Your shared WAZI listing is now live");document.getElementById('shop').scrollIntoView({behavior:'smooth'})};if(file){enhanceImageFile(file,function(url){fetch(url).then(r=>r.blob()).then(blob=>{const reader=new FileReader();reader.onload=()=>save(reader.result);reader.readAsDataURL(blob)})})}else save("")}
