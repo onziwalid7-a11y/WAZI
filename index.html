@@ -181,6 +181,42 @@ button, a, select, input, textarea {
 }
 </style>
 
+<style id="wazi-mobile-scroll-fix">
+/* Keep the document itself scrollable on mobile browsers. */
+html {
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+}
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+@media (max-width: 900px) {
+  body { position: relative; }
+  main, #main, .page-content { min-height: 0; }
+  nav#waziNav.mobile-open {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+  .modal.open {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    align-items: flex-start;
+  }
+  .modal-card {
+    flex-shrink: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior-y: contain;
+  }
+  .cookie-banner.show { max-height: 70dvh; overflow-y: auto; }
+}
+</style>
 </head>
 <body>
 <header><div class="nav"><a class="logo" href="#">WAZI</a><span class="tag">WEAR YOUR STORY</span><button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open navigation menu" aria-controls="waziNav" aria-expanded="false" onclick="toggleMobileNav()">☰ <span>Menu</span></button><nav id="waziNav"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#community">Buyer & Seller</a><a href="#seller-profiles">Trust</a><a href="#sell">Sell</a><a href="#founder">Founder</a><a href="#about">About</a><button type="button" class="mobile-nav-account" onclick="closeMobileNav();openAccount()">Account</button></nav><select id="languageSwitcher" class="language-switcher" aria-label="Language" onchange="changeLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="ar">🇲🇦 العربية</option></select><button class="install-btn btn secondary" id="installBtn" onclick="installWazi()">Install App</button><button class="account-btn" id="accountBtn" onclick="openAccount()">Account</button><button class="cart-btn" onclick="openCart()">Cart <span id="cartCount">0</span></button></div></header>
