@@ -413,7 +413,7 @@ function translateWazi(lang){
   document.querySelectorAll("select option").forEach(opt=>{
     const base=opt.getAttribute("data-wazi-label")||opt.textContent.trim();
     if(!opt.getAttribute("data-wazi-label"))opt.setAttribute("data-wazi-label",base);
-    opt.textContent=lang==="en"?base:(dict[base]||base);
+    const translatedOption=lang==="en"?base:(dict[base]||base);if(opt.textContent!==translatedOption)opt.textContent=translatedOption;
   });
   localStorage.setItem("waziLanguage",lang);
 }
