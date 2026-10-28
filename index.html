@@ -145,6 +145,42 @@ input,select,textarea{max-width:100%}
 .trust-promise b{display:block;margin-bottom:4px}.trust-promise span{font-size:.8rem;color:#999}
 @media(max-width:800px){.trust-promise{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.trust-promise{grid-template-columns:1fr}}
 </style>
+
+<style id="wazi-mobile-touch-fix">
+/* Mobile touch reliability: keep decorative layers from intercepting taps. */
+button, a, select, input, textarea, label, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button, a, select, input, textarea {
+  max-width: 100%;
+}
+.wazi-card-front:before, .wazi-card-back:before,
+.lux-card-inner:before, .luxury-card-v3:before, .luxury-card-v3:after,
+.lux-card-glow, .clothes:before, .clothes:after {
+  pointer-events: none !important;
+}
+@media (max-width: 900px) {
+  header { position: relative; z-index: 100; }
+  .nav { isolation: isolate; }
+  nav#waziNav.mobile-open { z-index: 200; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  nav#waziNav.mobile-open a,
+  nav#waziNav.mobile-open button { position: relative; z-index: 201; }
+  .modal { overflow-y: auto; -webkit-overflow-scrolling: touch; align-items: flex-start; }
+  .modal.open { touch-action: pan-y; }
+  .modal-card { max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  button, a, select, input, textarea, .quick-group, .float-btn { scroll-margin-top: 90px; }
+}
+@media (max-width: 560px) {
+  button, .btn, a.btn, .quick-group, .cart-btn, .account-btn,
+  .mobile-menu-toggle, .mobile-nav-account, .icon-btn, .add,
+  .report-btn, .remove-btn, .qty button, .clear-btn, .float-btn {
+    min-height: 44px;
+  }
+  input, select, textarea { font-size: 16px; }
+}
+</style>
+
 </head>
 <body>
 <header><div class="nav"><a class="logo" href="#">WAZI</a><span class="tag">WEAR YOUR STORY</span><button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open navigation menu" aria-controls="waziNav" aria-expanded="false" onclick="toggleMobileNav()">☰ <span>Menu</span></button><nav id="waziNav"><a href="#shop">Shop</a><a href="#categories">Categories</a><a href="#community">Buyer & Seller</a><a href="#seller-profiles">Trust</a><a href="#sell">Sell</a><a href="#founder">Founder</a><a href="#about">About</a><button type="button" class="mobile-nav-account" onclick="closeMobileNav();openAccount()">Account</button></nav><select id="languageSwitcher" class="language-switcher" aria-label="Language" onchange="changeLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="fr">🇫🇷 Français</option><option value="ar">🇲🇦 العربية</option></select><button class="install-btn btn secondary" id="installBtn" onclick="installWazi()">Install App</button><button class="account-btn" id="accountBtn" onclick="openAccount()">Account</button><button class="cart-btn" onclick="openCart()">Cart <span id="cartCount">0</span></button></div></header>
